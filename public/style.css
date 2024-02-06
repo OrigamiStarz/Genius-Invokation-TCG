@@ -1,0 +1,75 @@
+* {
+    font-family: "Philosopher", sans-serif;
+}
+
+/* WELCOME TEXT */
+#welcome {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    top: calc(50% - 80px);
+    position: absolute;
+    animation: fade 1s 2.1s forwards ease-out;
+}
+
+#welcome h1 {
+    animation: splash 1s normal forwards ease-in-out;
+    opacity: 0;
+    color: white;
+    font-size: 50px;
+    text-shadow: 2px 2px 4px black;
+}
+
+/* https://stackoverflow.com/questions/8482820/run-css3-animation-only-once-at-page-loading */
+@keyframes splash {
+    from {
+        display: inline-block;
+        opacity: 0;
+        transform: scale(0, 0);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.4, 1.4);
+    }
+    to {
+        transform: scale(1, 1);
+        opacity: 1;
+    }
+}
+
+@keyframes fade {
+    to {
+        opacity: 0;
+    }
+}
+
+body {
+    background-image: url("https://64.media.tumblr.com/458bc57420268805ccb708bbcb0f97b1/92975c71912e9811-d5/s1280x1920/e16bb85e87f6b54c13d5655723f607dba965b442.png");
+    /* https://64.media.tumblr.com/3408e207a114a1d202554ef125610780/92975c71912e9811-ed/s1280x1920/47f688dcb00b0acef3f7816b046e217e1e44dfd3.png */
+    overflow: hidden;
+    background-size: 100%;
+}
+/* .philosopher-regular {
+    font-family: "Philosopher", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+  }
+  
+  .philosopher-regular-italic {
+    font-family: "Philosopher", sans-serif;
+    font-weight: 400;
+    font-style: italic;
+  }
+  
+  .philosopher-bold {
+    font-family: "Philosopher", sans-serif;
+    font-weight: 700;
+    font-style: normal;
+  }
+  
+  .philosopher-bold-italic {
+    font-family: "Philosopher", sans-serif;
+    font-weight: 700;
+    font-style: italic;
+  }
+   */
