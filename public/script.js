@@ -18,15 +18,27 @@ for (let i=0; i<welcomeText.split(" ").length; i++) {
 // connects to server
 const socket = io(); 
 
-// socket.emit("setWord",input.value);
+setTimeout(() => {
+    socket.emit("join",{ 
+        name: prompt("Enter Player Name: "), 
+        roomID: prompt("Enter RoomID (leave blank if none): ")
+    });    
+}, 3000)
 
 // successfully joined, 
 // show that the player is in the waiting room if their name works
-socket.on("waitRoom",function() {
-    alert("Please wait for another player to join.");
+socket.on("createRoom",function(roomID) {
+    alert("Please wait for another player to join. \n\nYour RoomID: " + roomID);
 });
-  
+
+socket.on("createGame",function(data) {
+    console.log(data);
+});
 
 socket.on("disconnect", function () {
     alert("You have been disconnected.");
 });
+
+socket.on("roomNotFound", function() {
+    alert("Room not found.");
+})
