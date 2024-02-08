@@ -28,11 +28,19 @@ setTimeout(() => {
 // successfully joined, 
 // show that the player is in the waiting room if their name works
 socket.on("createRoom",function(roomID) {
+    console.log(roomID);
     alert("Please wait for another player to join. \n\nYour RoomID: " + roomID);
 });
 
 socket.on("createGame",function(data) {
+    const img = document.getElementById("card");
     console.log(data);
+    let character = data["character"];
+    if (character == "Ganyu") img.src = "https://static.wikia.nocookie.net/gensin-impact/images/8/87/Ganyu_Character_Card.png";
+    else if (character == "Yoimiya") img.src = "https://static.wikia.nocookie.net/gensin-impact/images/9/98/Yoimiya_Character_Card.png";
+    else if (character == "Raiden") img.src = "https://static.wikia.nocookie.net/gensin-impact/images/c/c9/Raiden_Shogun_Character_Card.png";
+    else if (character == "Albedo") img.src = "https://static.wikia.nocookie.net/gensin-impact/images/e/e4/Albedo_Character_Card.png";
+    else if (character == "Kokomi") img.src = "https://static.wikia.nocookie.net/gensin-impact/images/d/d3/Sangonomiya_Kokomi_Character_Card.png";
 });
 
 socket.on("disconnect", function () {

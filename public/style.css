@@ -73,3 +73,24 @@ body {
     font-style: italic;
   }
    */
+
+/* Attack Buttons */
+.attack {
+    background-color: teal;
+    color: white;
+    border-radius: 10px; 
+    width: 10vw;
+    margin: 10px;
+    padding: 10px;
+    transition: 0.2s ease-out;
+}
+.attack:hover {
+    opacity: 0.9;
+    transform: scale(110%);
+}
+#attackButtonDiv {
+    padding: 10px;
+    position: fixed;
+    bottom: 0;
+    right:0; 
+}
