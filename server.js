@@ -137,6 +137,8 @@ class Game {
       for (let i=0; i<this.blocks.length; i++) {
         if (this.blocks[i] == targetElement) count++;
       }
+      console.log(this.blocks);
+      console.log("This player has " + count + " blocks with " + targetElement);
       if (count >= 3) {
         dmg = 3;
       }
@@ -149,6 +151,8 @@ class Game {
       for (let i=0; i<this.blocks.length; i++) {
         if (this.blocks[i] == targetElement) count++;
       }
+      console.log(this.blocks);
+      console.log("This player has " + count + " blocks with " + targetElement);
       if (count >= 4) {
         dmg = 4;
       }
@@ -156,7 +160,7 @@ class Game {
     }
 
     // if the character dies, end game
-    if (!this.myCharacter(socketid).gotAttacked(dmg)) {
+    if (!attackedPlayer.gotAttacked(dmg)) {
       return this.endGame();;
     }
 
@@ -175,6 +179,9 @@ class Game {
   }
 
   endGame() {
+    console.log("Winner is " + (this.turn == this.playerSockets[0]) ? 
+    playerName[this.playerSockets[0]] : 
+    playerName[this.playerSockets[1]]);
     // not done
     if (this.turn == this.playerSockets[0]) {
       return playerName[this.playerSockets[0]];

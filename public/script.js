@@ -92,7 +92,7 @@ socket.on("createGame",function(data) {
 
     // display player info
     document.getElementById("myCharInfo").style.display = "block";
-    document.getElementById("myPlayerName").textContent = data["myName"];
+    document.getElementById("myPlayerName").textContent = data["myName"] + " (you)";
     document.getElementById("myCharHp").textContent = "HP: " + data["myCharHp"];
 
     document.getElementById("oppCharInfo").style.display = "block";

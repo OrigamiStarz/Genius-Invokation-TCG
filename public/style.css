@@ -111,10 +111,10 @@ body {
 
 /* card positions */
 #myChar {
-
-}
-#oppChar {
     transform: translateY(100%);
+}
+
+#oppChar {
 }
 .card {
     top:50%; 
@@ -125,7 +125,7 @@ body {
 }
 
 /* player info */
-#myCharInfo {
+#oppCharInfo {
     text-align: center;
     background: teal;
     color: white;
@@ -136,7 +136,7 @@ body {
     position: absolute;
     display: none;
 }
-#oppCharInfo {
+#myCharInfo {
     text-align: center;
     background: teal;
     color: white;
