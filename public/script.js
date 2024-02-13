@@ -172,7 +172,7 @@ socket.on("winner", function(data) {
     document.getElementById("attackButtonDiv").style.display = "none";
     // display winner
     const winner = data["winner"];
-    showModal(winner + " has won!");
+    showModal(winner + " has won! Please refresh to start a new game.");
 })
 
 // buttons
