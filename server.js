@@ -30,6 +30,10 @@ class Player {
   s() {return this.s};
   b() {return this.b};
 
+  getHp() { return this.hp; }
+
+  getElement() { return this.element; }
+
   gotAttacked(dmg) {
     this.hp -= dmg;
     return this.hp > 0;  // return if they're alive
@@ -43,7 +47,7 @@ class Game {
     this.elements = ["cryo", "pyro", "electro", "geo", "hydro", "anemo", "dendro"];
     this.blocks = [];
     this.turn = this.playerSockets[Math.floor(Math.random() * 2)];
-    this.hasNotRolled = false;
+    this.hasNotRolled = true;
     console.log("Game starts!" + this.playerNames);
 
     // create 2 "players" (randomize from list)
@@ -85,14 +89,18 @@ class Game {
     return s >= num;
   }
 
+  getPlayers() {
+    return this.playerSockets;
+  }
+
   // roll 10 random dice with different elements
   roll(socketid) {
     // make sure it is during their turn
-    if (!this.isMyTurn(socketid) && this.hasNotRolled) {
+    if (!this.isMyTurn(socketid) || !this.hasNotRolled) {
       console.log("Caught a cheater!!!");
       return -1;
     }
-    this.hasNotRolled = true;
+    this.hasNotRolled = false;
     for (let i = 0; i < 10; i++) {
       const randomElement = this.elements[Math.floor(Math.random() * this.elements.length)];
       this.blocks.push(randomElement);
@@ -102,51 +110,67 @@ class Game {
 
   // playing an attack (ends turn)
   attack(type, socketid) {
+    console.log(playerName[socketid] + " attacked using a " + type + "!")
     // make sure it is during their turn
     if (!this.isMyTurn(socketid)) {
       console.log("Caught a cheater!!!");
       return -1;
     }
     let attackedPlayer;
-    let dmg;
+    let dmg = 0;
     // get the character that is going to be attacked
     if (this.playerSockets[0] == socketid) attackedPlayer = this.characters[1];
     else attackedPlayer = this.characters[0]; 
     // attack the player!! if you have enough dice
     if (type == "ba") {
-      // ... there's basically always enough dice LOL since no cards
-      dmg = 2;
+      // check if enough dice
+      if (this.blocks.length >= 2)
+        dmg = 2;
     }
     else if (type == "s") {
       // check if enough dice
-
-      // if not, end game cuz I'm not dealing with it
-
-      dmg = 3; 
-
+      const targetElement = this.myCharacter(socketid).getElement();
+      let count = 0;
+      for (let i=0; i<this.blocks.length; i++) {
+        if (this.blocks[i] == targetElement) count++;
+      }
+      if (count >= 3) {
+        dmg = 3;
+      }
+      // if not enough dice, rip turn
     }
     else if (type == "b") {
       // check if enough dice
-
-      // if not, end game cuz I'm not dealing with it
-
-      dmg = 4;
+      const targetElement = this.myCharacter(socketid).getElement();
+      let count = 0;
+      for (let i=0; i<this.blocks.length; i++) {
+        if (this.blocks[i] == targetElement) count++;
+      }
+      if (count >= 4) {
+        dmg = 4;
+      }
+      // if not enough dice, rip turn
     }
 
-
     // if the character dies, end game
-    if (!character.gotAttacked(dmg)) {
-      this.endGame();
-      return;
+    if (!this.myCharacter(socketid).gotAttacked(dmg)) {
+      return this.endGame();;
     }
 
     // switch turns
     if (this.turn == this.playerSockets[0]) this.turn = this.playerSockets[1];
     else this.turn = this.playerSockets[0];
+    this.hasNotRolled = true;
     this.blocks = [];
+
+    return 0;
   }
   endGame() {
-    return "rip";
+    // not done
+    if (this.turn == this.playerSockets[0]) {
+      return playerName[this.playerSockets[0]];
+    }
+    return playerName[this.playerSockets[1]];
   }
 } // end of Game class
 
@@ -188,8 +212,7 @@ io.on("connection", function (socket) {
         yourTurn: g.isMyTurn(roomID[givenId]),
         blocks: g.blocks,
         myChar: g.myCharacter(roomID[givenId]),
-        oppChar: g.myCharacter(socket.id)
-
+        oppChar: g.myCharacter(socket.id),
       });
       socket.emit("createGame", {
         myName: playerName[socket.id],
@@ -197,7 +220,7 @@ io.on("connection", function (socket) {
         yourTurn: g.isMyTurn(socket.id), 
         blocks: g.blocks,
         myChar: g.myCharacter(socket.id),
-        oppChar: g.myCharacter(roomID[givenId])
+        oppChar: g.myCharacter(roomID[givenId]),
       });
     } 
     // not found
@@ -214,6 +237,38 @@ io.on("connection", function (socket) {
     if (blocks == -1) return;
     socket.emit("roll", {blocks: blocks});
   });
+
+  socket.on("attack", function(data) {
+    let g = games[socket.id];
+    const winner = g.attack(data, socket.id);
+    let otherSocketId = g.getPlayers()[0];
+    if (otherSocketId == socket.id) otherSocketId = g.getPlayers()[1];
+
+    // no winner yet
+    if (winner == 0) {
+      // to player
+      socket.emit("turnComplete", {
+        myName: playerName[socket.id],
+        oppName: playerName[otherSocketId],
+        yourTurn: g.isMyTurn(socket.id), 
+        myChar: g.myCharacter(socket.id),
+        oppChar: g.myCharacter(playerName[otherSocketId])
+      });
+      // to opponent
+      socket.to(otherSocketId).emit("turnComplete", {
+        myName: playerName[otherSocketId],
+        oppName: playerName[socket.id],
+        yourTurn: g.isMyTurn(otherSocketId), 
+        myChar: g.myCharacter(otherSocketId),
+        oppChar: g.myCharacter(playerName[socket.id])
+      });
+    }
+    // found a winner
+    else {
+      socket.emit("winner", {"winner": winner});
+      socket.to(otherSocketId).emit("winner", {"winner": winner});
+    }
+  })
 
   // add more functions here
 

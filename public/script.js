@@ -34,9 +34,6 @@ function closeModal() {
     }
 }
 
-
-
-
 // connects to server
 const socket = io(); 
 
@@ -57,6 +54,9 @@ socket.on("createRoom",function(roomID) {
 
 socket.on("createGame",function(data) {
 
+    // remove modal
+    closeModal();
+
     // enable removal of modal by clicking outside
     window.onclick = function(event) {
         const c = document.getElementById("modalContainer");
@@ -64,12 +64,11 @@ socket.on("createGame",function(data) {
     }
 
     // remove roomID from screen
-    document.getElementById("roomID").textContent = "";
+    // document.getElementById("roomID").textContent = "";
 
     // display attack buttons if turn
     if (data["yourTurn"]) document.getElementById("attackButtonDiv").style.display = "block";
     
-
     // display character cards
     const img1 = document.getElementById("myChar");
     const img2 = document.getElementById("oppChar");
@@ -91,12 +90,11 @@ socket.on("createGame",function(data) {
     // display player info
     document.getElementById("myCharInfo").style.display = "block";
     document.getElementById("myPlayerName").textContent = data["myName"];
-    document.getElementById("myCharHp").textContent = "HP: 10";
+    // document.getElementById("myCharHp").textContent = "HP: " + data["myChar"].getHp();
 
     document.getElementById("oppCharInfo").style.display = "block";
     document.getElementById("oppPlayerName").textContent = data["oppName"];
-    document.getElementById("oppCharHp").textContent = "HP: 10";
-
+    // document.getElementById("oppCharHp").textContent = "HP: " + data["oppChar"].getHp();    
 });
 // rolls
 socket.on("roll", function(data) {
@@ -115,24 +113,53 @@ socket.on("roll", function(data) {
     }
 });
 
+// for each turn 
+socket.on("turnComplete", function(data) {
+    // display player info
+    document.getElementById("myCharInfo").style.display = "block";
+    document.getElementById("myPlayerName").textContent = data["myName"];
+    // document.getElementById("myCharHp").textContent = "HP: " + data["myChar"].getHp();
+
+    document.getElementById("oppCharInfo").style.display = "block";
+    document.getElementById("oppPlayerName").textContent = data["oppName"];
+    // document.getElementById("oppCharHp").textContent = "HP: " + data["oppChar"].getHp();    
+
+    // hide blocks
+    const die = document.getElementById("diceContainer").children;
+    for (let i=0; i<10; i++) {
+        die[i].style.display = "none";
+    }
+
+    // display attack buttons if turn, otherwise hide
+    if (data["yourTurn"]) document.getElementById("attackButtonDiv").style.display = "block";
+    else document.getElementById("attackButtonDiv").style.display = "none";
+
+    console.log(data);
+});
+
+// winner 
+socket.on("winner", function(data) {
+    const winner = data["winner"];
+    showModal(winner + " has won!");
+    // no more blocks
+    const die = document.getElementById("diceContainer").children;
+    for (let i=0; i<10; i++) {
+        die[i].style.display = "none";
+    }
+    // no more attack buttons
+    document.getElementById("attackButtonDiv").style.display = "none";
+})
 
 // buttons
 const rollBtn = document.getElementById("roll");
 const baBtn = document.getElementById("ba");
 const sBtn = document.getElementById("s");
 const bBtn = document.getElementById("b");
-rollBtn.onclick = () => {
-    socket.emit("roll");
-}
-baBtn.onclick = () => {
-    socket.emit("attack", "ba");
-}
-sBtn.onclick = () => {
-    socket.emit("attack", "s");
-}
-bBtn.onclick = () => {
-    socket.emit("attack", "b");
-}
+
+rollBtn.onclick = () => { socket.emit("roll"); }
+baBtn.onclick = () => { socket.emit("attack", "ba"); }
+sBtn.onclick = () => { socket.emit("attack", "s"); }
+bBtn.onclick = () => { socket.emit("attack", "b"); }
 
 // diconnect
 socket.on("disconnect", function () {
