@@ -43,6 +43,7 @@ class Game {
     this.elements = ["cryo", "pyro", "electro", "geo", "hydro", "anemo", "dendro"];
     this.blocks = [];
     this.turn = this.playerSockets[Math.floor(Math.random() * 2)];
+    this.hasNotRolled = false;
     console.log("Game starts!" + this.playerNames);
 
     // create 2 "players" (randomize from list)
@@ -85,7 +86,13 @@ class Game {
   }
 
   // roll 10 random dice with different elements
-  roll() {
+  roll(socketid) {
+    // make sure it is during their turn
+    if (!this.isMyTurn(socketid) && this.hasNotRolled) {
+      console.log("Caught a cheater!!!");
+      return -1;
+    }
+    this.hasNotRolled = true;
     for (let i = 0; i < 10; i++) {
       const randomElement = this.elements[Math.floor(Math.random() * this.elements.length)];
       this.blocks.push(randomElement);
@@ -98,7 +105,7 @@ class Game {
     // make sure it is during their turn
     if (!this.isMyTurn(socketid)) {
       console.log("Caught a cheater!!!");
-      return;
+      return -1;
     }
     let attackedPlayer;
     let dmg;
@@ -176,16 +183,21 @@ io.on("connection", function (socket) {
       }
       // start game
       socket.to(roomID[givenId]).emit("createGame", {
-        players: [playerName[roomID[givenId]], playerName[socket.id]],
+        myName: playerName[roomID[givenId]],
+        oppName: playerName[socket.id],
         yourTurn: g.isMyTurn(roomID[givenId]),
         blocks: g.blocks,
-        character: g.myCharacter(roomID[givenId])
+        myChar: g.myCharacter(roomID[givenId]),
+        oppChar: g.myCharacter(socket.id)
+
       });
       socket.emit("createGame", {
-        players: [playerName[roomID[givenId]], playerName[socket.id]],
+        myName: playerName[socket.id],
+        oppName: playerName[roomID[givenId]],
         yourTurn: g.isMyTurn(socket.id), 
         blocks: g.blocks,
-        character: g.myCharacter(socket.id)
+        myChar: g.myCharacter(socket.id),
+        oppChar: g.myCharacter(roomID[givenId])
       });
     } 
     // not found
@@ -193,6 +205,14 @@ io.on("connection", function (socket) {
       socket.emit("roomNotFound");
       socket.disconnect();
     }
+    
+  });
+
+  socket.on("roll", function () {
+    const blocks = games[socket.id].roll(socket.id);
+    console.log(playerName[socket.id] + " rolled " + blocks);
+    if (blocks == -1) return;
+    socket.emit("roll", {blocks: blocks});
   });
 
   // add more functions here

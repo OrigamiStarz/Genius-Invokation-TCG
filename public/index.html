@@ -15,16 +15,55 @@
     <link href="https://fonts.googleapis.com/css2?family=Philosopher:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
   </head>
   <body>
+    <!-- modal -->
+    <div id="modalContainer">
+      <div id="modalContent">
+        <h1 id="modalText">Welcome! Please enter your nickname and room ID. If you are creating a room, leave the room ID blank.</h1>
+        <label for="playerNameBox" id="playerNameBoxLabel">Nickname: </label>
+        <input type="text" id="playerNameBox" placeholder="Nickname">
+        <br class="no">
+        <label for="roomIDBox" id="roomIDBoxLabel">Room ID: </label>
+        <input type="text" id="roomIDBox" placeholder="Room ID">
+        <br class="no">
+        <button type="submit" id="joinGameBtn">Enter</button>
+      </div>
+    </div>
+
     <!-- welcome -->
     <div id="welcome"></div>
-    <div id="dice"></div>
+    <!-- <div class="center" style="color: white;"><h1 id="roomID"></h1></div> -->
+    <div id="diceContainer">
+      <div class="dice"></div>
+      <div class="dice"></div>
+      <div class="dice"></div>
+      <div class="dice"></div>
+      <div class="dice"></div>
+      <div class="dice"></div>
+      <div class="dice"></div>
+      <div class="dice"></div>
+      <div class="dice"></div>
+      <div class="dice"></div>
+    </div>
 
-    <img id="card" src="" alt="">
+    <div id="myCharInfo">
+      <h1 id="myPlayerName"></h1>
+      <h1 id="myCharHp"></h1>
+    </div>
+
+    <div id="oppCharInfo">
+      <h1 id="oppPlayerName"></h1>
+      <h1 id="oppCharHp"></h1>
+    </div>
+
+    <img class="card" id="myChar" alt="">
+    <img class="card" id="oppChar" alt="">
+
 
     <div id="attackButtonDiv">
-      <div class="attack">Basic Attack</div>
-      <div class="attack">Skill</div>
-      <div class="attack">Burst</div>
+      <div class="attack" id="roll">Roll</div>
+      <div class="attack" id="ba">Basic Attack</div>
+      <div class="attack" id="s">Skill</div>
+      <div class="attack" id="b">Burst</div>
     </div>
 
 

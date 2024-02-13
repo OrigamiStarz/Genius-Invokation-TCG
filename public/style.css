@@ -20,6 +20,15 @@
     text-shadow: 2px 2px 4px black;
 }
 
+/* .center {
+    position: absolute;
+    text-align: center;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 10px;
+} */
+
 /* https://stackoverflow.com/questions/8482820/run-css3-animation-only-once-at-page-loading */
 @keyframes splash {
     from {
@@ -93,4 +102,111 @@ body {
     position: fixed;
     bottom: 0;
     right:0; 
+    display: none;
+}
+
+/* card positions */
+#myChar {
+
+}
+#oppChar {
+    transform: translateY(100%);
+}
+.card {
+    top:50%; 
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 10vw;
+}
+
+/* player info */
+#myCharInfo {
+    text-align: center;
+    background: teal;
+    color: white;
+    width: 20vw;
+    height: 20vh;
+    top: 0px;
+    left: 0px;
+    position: absolute;
+    display: none;
+}
+#oppCharInfo {
+    text-align: center;
+    background: teal;
+    color: white;
+    width: 20vw;
+    height: 20vh;
+    bottom: 0px;
+    left: 0px;
+    position: absolute;
+    display: none;
+}
+
+/* dice container + dice */
+#diceContainer {
+    position: absolute;
+    bottom: 0px;
+    width: 100%;
+    height: 60px;
+    display: flex;
+    justify-content: center;
+}
+
+.dice {
+    width: 50px; 
+    height: 50px;
+    margin: 2px;
+}
+
+/* modal */
+#modalContainer {
+    margin: 0px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0,0,0,0.5);
+    display: none;
+    z-index: 1;
+}
+
+#modalContent {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgb(22, 22, 22);
+    padding: 2vw 2vh;
+    border-radius: 10px;
+    color: white;
+    border: 5px solid teal;
+    outline: 5px solid teal;
+    outline-offset: -20px;
+    z-index: 2;
+}
+
+#modalContent * {
+    margin: 20px;
+    font-size: 20px;
+    text-align: center;
+}
+
+#modalContent input {
+    margin-left: 0px;
+}
+
+#modalContent button {
+    margin: auto;
+    margin-top: 25px;
+    margin-bottom: 25px;
+    display: block;
+    width: 50%;
+    padding: 2px;
+}
+
+#modalContent button:hover {
+    opacity: 0.9;
 }
