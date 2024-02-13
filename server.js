@@ -210,7 +210,7 @@ io.on("connection", function (socket) {
       // ehhh code later if time
       // create game
       const players = [roomID[givenId], socket.id];
-      const g = new Game(players, [[playerName[roomID[givenId]], playerName[socket.id]]]); 
+      const g = new Game(players, [playerName[socket.id], playerName[roomID[givenId]]]); 
       games[socket.id] = g;
       games[roomID[givenId]] = g;      
 
