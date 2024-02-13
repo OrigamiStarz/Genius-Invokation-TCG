@@ -28,6 +28,7 @@ function closeModal() {
     document.getElementById("playerNameBox").style.display = "none";
     document.getElementById("roomIDBoxLabel").style.display = "none";
     document.getElementById("roomIDBox").style.display = "none";
+    document.getElementById("copyRoomIDdiv").style.display = "none";
     document.getElementById("joinGameBtn").style.display = "none";
     for (let i=0; i<2; i++) {
         document.getElementsByClassName("no")[i].style.display = "none";
@@ -49,7 +50,12 @@ document.getElementById("joinGameBtn").onclick = function() {
 // successfully joined, 
 // show that the player is in the waiting room if their name works
 socket.on("createRoom",function(roomID) {
-    showModal("Share this RoomID with someone to start your game! RoomID: " + roomID)
+    showModal("Share this RoomID with someone to start your game! RoomID: " + roomID);
+    // copy paste roomID
+    document.getElementById("copyRoomIDdiv").style.display = "inline";
+    document.getElementById("copyRoomIDdiv").onclick = function() {
+        navigator.clipboard.writeText(roomID);
+    };
 });
 
 socket.on("createGame",function(data) {
@@ -66,14 +72,11 @@ socket.on("createGame",function(data) {
     // remove roomID from screen
     // document.getElementById("roomID").textContent = "";
 
-    // display attack buttons if turn
-    if (data["yourTurn"]) document.getElementById("attackButtonDiv").style.display = "block";
-    
     // display character cards
     const img1 = document.getElementById("myChar");
     const img2 = document.getElementById("oppChar");
-    const character1 = data["myChar"]["name"];
-    const character2 = data["oppChar"]["name"];
+    const character1 = data["myChar"];
+    const character2 = data["oppChar"];
 
     if (character1 == "Ganyu") img1.src = "https://static.wikia.nocookie.net/gensin-impact/images/8/87/Ganyu_Character_Card.png";
     else if (character1 == "Yoimiya") img1.src = "https://static.wikia.nocookie.net/gensin-impact/images/9/98/Yoimiya_Character_Card.png";
@@ -90,11 +93,20 @@ socket.on("createGame",function(data) {
     // display player info
     document.getElementById("myCharInfo").style.display = "block";
     document.getElementById("myPlayerName").textContent = data["myName"];
-    // document.getElementById("myCharHp").textContent = "HP: " + data["myChar"].getHp();
+    document.getElementById("myCharHp").textContent = "HP: " + data["myCharHp"];
 
     document.getElementById("oppCharInfo").style.display = "block";
     document.getElementById("oppPlayerName").textContent = data["oppName"];
-    // document.getElementById("oppCharHp").textContent = "HP: " + data["oppChar"].getHp();    
+    document.getElementById("oppCharHp").textContent = "HP: " + data["oppCharHp"];
+
+    // display attack buttons if turn, also modal
+    if (data["yourTurn"]) {
+        document.getElementById("attackButtonDiv").style.display = "inline";
+        showModal("Your turn! Roll, then choose an attack.");
+    }
+    else {
+        showModal("Waiting for opponent...");
+    }    
 });
 // rolls
 socket.on("roll", function(data) {
@@ -118,11 +130,11 @@ socket.on("turnComplete", function(data) {
     // display player info
     document.getElementById("myCharInfo").style.display = "block";
     document.getElementById("myPlayerName").textContent = data["myName"];
-    // document.getElementById("myCharHp").textContent = "HP: " + data["myChar"].getHp();
+    document.getElementById("myCharHp").textContent = "HP: " + data["myCharHp"];
 
     document.getElementById("oppCharInfo").style.display = "block";
     document.getElementById("oppPlayerName").textContent = data["oppName"];
-    // document.getElementById("oppCharHp").textContent = "HP: " + data["oppChar"].getHp();    
+    document.getElementById("oppCharHp").textContent = "HP: " + data["oppCharHp"];    
 
     // hide blocks
     const die = document.getElementById("diceContainer").children;
@@ -131,16 +143,26 @@ socket.on("turnComplete", function(data) {
     }
 
     // display attack buttons if turn, otherwise hide
-    if (data["yourTurn"]) document.getElementById("attackButtonDiv").style.display = "block";
-    else document.getElementById("attackButtonDiv").style.display = "none";
+    // modal for:
+    // 1. what happened (later if time)
+    // 2. it's your turn to go!
+    // 3. wait for your turn
 
-    console.log(data);
+    if (data["yourTurn"]) {
+        document.getElementById("attackButtonDiv").style.display = "block";
+        showModal("Your turn! Roll, then choose an attack.");
+    }
+    else {
+        document.getElementById("attackButtonDiv").style.display = "none";
+        showModal("Done! Wait for your turn now.");
+    }
+
+
+
 });
 
 // winner 
 socket.on("winner", function(data) {
-    const winner = data["winner"];
-    showModal(winner + " has won!");
     // no more blocks
     const die = document.getElementById("diceContainer").children;
     for (let i=0; i<10; i++) {
@@ -148,6 +170,9 @@ socket.on("winner", function(data) {
     }
     // no more attack buttons
     document.getElementById("attackButtonDiv").style.display = "none";
+    // display winner
+    const winner = data["winner"];
+    showModal(winner + " has won!");
 })
 
 // buttons

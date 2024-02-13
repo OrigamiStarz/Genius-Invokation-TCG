@@ -34,9 +34,15 @@ class Player {
 
   getElement() { return this.element; }
 
+  getName() { return this.name; }
+
   gotAttacked(dmg) {
     this.hp -= dmg;
     return this.hp > 0;  // return if they're alive
+  }
+
+  toString() {
+    return this.name + " with HP " + this.hp;
   }
 }
 
@@ -60,16 +66,14 @@ class Game {
     ];
 
     // give a random character to each player
-    let randInt1 = characters[Math.floor(Math.random() * characters.length)];
-    let randInt2 = characters[Math.floor(Math.random() * characters.length)];
+    let randInt1 = Math.floor(Math.random() * characters.length);
+    let randInt2 = Math.floor(Math.random() * characters.length);
 
-    while (randInt1 == randInt2)
-      randInt2 = characters[Math.floor(Math.random() * characters.length)];
+    while (randInt1 == randInt2) {
+      randInt2 = Math.floor(Math.random() * characters.length);
+    }
 
-    this.characters = [
-      characters[Math.floor(Math.random() * characters.length)],
-      characters[Math.floor(Math.random() * characters.length)]
-    ];
+    this.characters = [ characters[randInt1], characters[randInt2] ];
   }
 
   myCharacter(socketid) {
@@ -89,7 +93,7 @@ class Game {
     return s >= num;
   }
 
-  getPlayers() {
+  getPlayerSockets() {
     return this.playerSockets;
   }
 
@@ -124,8 +128,7 @@ class Game {
     // attack the player!! if you have enough dice
     if (type == "ba") {
       // check if enough dice
-      if (this.blocks.length >= 2)
-        dmg = 2;
+      if (this.blocks.length >= 2) dmg = 2;
     }
     else if (type == "s") {
       // check if enough dice
@@ -165,6 +168,12 @@ class Game {
 
     return 0;
   }
+
+  getHp(socketid) {
+    if (this.playerSockets[0] == socketid) return this.characters[0].getHp();
+    return this.characters[1].getHp();
+  }
+
   endGame() {
     // not done
     if (this.turn == this.playerSockets[0]) {
@@ -202,25 +211,34 @@ io.on("connection", function (socket) {
       // create game
       const players = [roomID[givenId], socket.id];
       const g = new Game(players, [[playerName[roomID[givenId]], playerName[socket.id]]]); 
-      for (let i=0; i<players.length; i++) {
-        games[players[i]] = g;
-      }
+      games[socket.id] = g;
+      games[roomID[givenId]] = g;      
+
+      console.log(roomID[givenId]);
+      console.log(g.myCharacter(roomID[givenId]));
+      console.log(socket.id);
+      console.log(g.myCharacter(socket.id));
+
       // start game
       socket.to(roomID[givenId]).emit("createGame", {
         myName: playerName[roomID[givenId]],
         oppName: playerName[socket.id],
         yourTurn: g.isMyTurn(roomID[givenId]),
         blocks: g.blocks,
-        myChar: g.myCharacter(roomID[givenId]),
-        oppChar: g.myCharacter(socket.id),
+        myChar: g.myCharacter(roomID[givenId]).getName(),
+        myCharHp: 10,
+        oppChar: g.myCharacter(socket.id).getName(),
+        oppCharHp: 10
       });
       socket.emit("createGame", {
         myName: playerName[socket.id],
         oppName: playerName[roomID[givenId]],
         yourTurn: g.isMyTurn(socket.id), 
         blocks: g.blocks,
-        myChar: g.myCharacter(socket.id),
-        oppChar: g.myCharacter(roomID[givenId]),
+        myChar: g.myCharacter(socket.id).getName(),
+        myCharHp: 10,
+        oppChar: g.myCharacter(roomID[givenId]).getName(),
+        oppCharHp: 10
       });
     } 
     // not found
@@ -231,6 +249,7 @@ io.on("connection", function (socket) {
     
   });
 
+  // player rolls (only once per turn)
   socket.on("roll", function () {
     const blocks = games[socket.id].roll(socket.id);
     console.log(playerName[socket.id] + " rolled " + blocks);
@@ -238,11 +257,12 @@ io.on("connection", function (socket) {
     socket.emit("roll", {blocks: blocks});
   });
 
+  // attack the other player & return the winner (if applicable, else 0)
   socket.on("attack", function(data) {
     let g = games[socket.id];
     const winner = g.attack(data, socket.id);
-    let otherSocketId = g.getPlayers()[0];
-    if (otherSocketId == socket.id) otherSocketId = g.getPlayers()[1];
+    let otherSocketId = g.getPlayerSockets()[0];
+    if (otherSocketId == socket.id) otherSocketId = g.getPlayerSockets()[1];
 
     // no winner yet
     if (winner == 0) {
@@ -251,16 +271,20 @@ io.on("connection", function (socket) {
         myName: playerName[socket.id],
         oppName: playerName[otherSocketId],
         yourTurn: g.isMyTurn(socket.id), 
-        myChar: g.myCharacter(socket.id),
-        oppChar: g.myCharacter(playerName[otherSocketId])
+        myChar: g.myCharacter(socket.id).getName(),
+        myCharHp: g.getHp(socket.id),
+        oppChar: g.myCharacter(otherSocketId).getName(),
+        oppCharHp: g.getHp(otherSocketId)
       });
       // to opponent
       socket.to(otherSocketId).emit("turnComplete", {
         myName: playerName[otherSocketId],
         oppName: playerName[socket.id],
         yourTurn: g.isMyTurn(otherSocketId), 
-        myChar: g.myCharacter(otherSocketId),
-        oppChar: g.myCharacter(playerName[socket.id])
+        myChar: g.myCharacter(otherSocketId).getName(),
+        myCharHp: g.getHp(otherSocketId),
+        oppChar: g.myCharacter(otherSocketId).getName(),
+        oppCharHp: g.getHp(socket.id)
       });
     }
     // found a winner

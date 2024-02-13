@@ -214,3 +214,31 @@ body {
 #modalContent button:hover {
     opacity: 0.9;
 }
+
+#copyRoomIDdiv {
+    position: absolute;
+    display: none;
+    right: 0px;
+    bottom: 0px;
+}
+
+#copyRoomIDdiv * {
+    color: gray;
+    margin: 0px;
+    display: inline-block;
+}
+
+#roomIDcopy {
+    filter: invert(1);
+    opacity: 0.8;
+    width: 20px;
+    height: 20px;
+}
+
+#roomIDcopy:hover {
+    opacity: 0.6;
+}
+
+#roomIDcopy:active {
+    transform: scale(110%);
+}
